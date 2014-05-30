@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>This is a page</title>
+        <script type="text/javascript" src="Scripts/XSockets.latest.js"></script>
+        <script type="text/javascript" src="Scripts/jquery-2.1.1.js"></script>
+    </head>
+    <body>
+        <button id="fooButton">foo</button>
+        <button id="barButton">bar</button>
+        <h1>FooDiv</h1>
+        <div id="fooDiv"></div>
+        <h1>BarDiv</h1>
+        <div id="barDiv"></div>
+        <script>
+            var conn;
+            $(function () {
+                conn = new XSockets.WebSocket("ws://grodslok-sockettest.cloudapp.net:11100/Generic");
+                conn.onopen = function (connection) {
+                    // connection is open, subscribe to the 'foo' topic
+                    conn.on('foo', function (d) {
+                        //Data for the topic 'foo' arrived, add message to the page
+                        $('#fooDiv').prepend($('<p>').text(d));
+                    });
+                };
+
+                $('#fooButton').on('click', function () {
+                    //Send a message on the 'foo' topic (for example) when a button is clicked
+                    conn.publish('foo', 'Hello Real-Time from JavaScript');
+                });
+
+                $('#barButton').on('click', function() {
+                    $.ajax({
+                        url: 'http://grodslok-sockettest.cloudapp.net/Echo/Banana',
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        success: function(data) {
+                            $('#barDiv').prepend($('<p>').text(data.EchoString));
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
